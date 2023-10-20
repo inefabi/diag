@@ -132,33 +132,37 @@
     }
 
     function selecteazaDiagnostic(diagnostic) {
-        diagnozeSelectate.push(diagnostic);
+        // Verificați dacă diagnosticul este deja în lista diagnozeSelectate
+        if (!diagnozeSelectate.includes(diagnostic)) {
+            // Dacă nu există, adăugați-l în listă
+            diagnozeSelectate.push(diagnostic);
     
-        // Creare container pentru textul diagnosticului selectat și butonul X
-        const divDiagnozaSelectata = document.createElement("div");
-        divDiagnozaSelectata.className = "diagnoza-selectata";
+            // Creare container pentru textul diagnosticului selectat și butonul X
+            const divDiagnozaSelectata = document.createElement("div");
+            divDiagnozaSelectata.className = "diagnoza-selectata";
     
-        // Butonul X
-        const butonSterge = document.createElement("span");
-        butonSterge.className = "buton-sterge";
-        butonSterge.textContent = "X";
-        butonSterge.addEventListener("click", function() {
-            stergeDiagnostic(diagnostic, divDiagnozaSelectata);
-        });
+            // Butonul X
+            const butonSterge = document.createElement("span");
+            butonSterge.className = "buton-sterge";
+            butonSterge.textContent = "X";
+            butonSterge.addEventListener("click", function() {
+                stergeDiagnostic(diagnostic, divDiagnozaSelectata);
+            });
     
-        // Textul diagnosticului
-        const spanDiagnoza = document.createElement("span");
-        spanDiagnoza.textContent = diagnostic;
-        spanDiagnoza.className = "diagnoza-text";
+            // Textul diagnosticului
+            const spanDiagnoza = document.createElement("span");
+            spanDiagnoza.textContent = diagnostic;
+            spanDiagnoza.className = "diagnoza-text";
     
-        // Adăugare buton și text în container
-        divDiagnozaSelectata.appendChild(butonSterge);
-        divDiagnozaSelectata.appendChild(spanDiagnoza);
+            // Adăugare buton și text în container
+            divDiagnozaSelectata.appendChild(butonSterge);
+            divDiagnozaSelectata.appendChild(spanDiagnoza);
     
-        diagnosticeSelectate.appendChild(divDiagnozaSelectata);
+            diagnosticeSelectate.appendChild(divDiagnozaSelectata);
     
-        // Afisare coduri pentru toate diagnozele selectate
-        afiseazaCoduriDiagnostic();
+            // Afisare coduri pentru toate diagnozele selectate
+            afiseazaCoduriDiagnostic();
+        }
     
         // Ascundeți lista după selectare
         diagnosticOptionsList.style.display = "none";
@@ -166,7 +170,6 @@
         // Ștergeți textul din câmpul de introducere
         diagnosticInput.value = "";
     }
-
 
     function stergeDiagnostic(diagnostic, divDiagnozaSelectata) {
         const index = diagnozeSelectate.indexOf(diagnostic);
