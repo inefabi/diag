@@ -30,25 +30,16 @@
             margin: 5px;
             position: relative;
         }
-        
+
         .buton-sterge {
             cursor: pointer;
             color: red;
             margin-left: 5px;
+            position: absolute;
+            top: 0;
+            right: 20px;
             font-weight: bold;
             font-size: 16px;
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            text-align: center;
-            line-height: 20px;
-            border: 1px solid #ccc;
-            border-radius: 50%;
-        }
-        
-        .diagnoza-text {
-            display: inline-block;
-            vertical-align: middle;
         }
 
         /* Stiluri pentru mesajul de încărcare */
@@ -78,7 +69,11 @@
 
 <div>
     <label for="coduri-diagnostic">Coduri diagnostic:</label>
-    <div id="coduri-diagnostic"></div>
+    <div id="coduri-diagnostic">
+        <div id="dg1"></div>
+        <div id="dg2"></div>
+        <div id="dg3"></div>
+    </div>
 </div>
 
 <div id="incarcare" class="incarcare">Se încarcă diagnozele...</div>
@@ -86,7 +81,6 @@
 <script>
     const diagnosticInput = document.getElementById("diagnostic");
     const diagnosticOptionsList = document.getElementById("diagnostic-options");
-    const coduriDiagnosticDiv = document.getElementById("coduri-diagnostic");
     const diagnosticeSelectate = document.getElementById("diagnostice-selectate");
     const incarcareDiv = document.getElementById("incarcare");
 
@@ -132,41 +126,37 @@
     }
 
     function selecteazaDiagnostic(diagnostic) {
-        // Verificați dacă diagnosticul este deja în lista diagnozeSelectate
-        if (!diagnozeSelectate.includes(diagnostic)) {
-            // Dacă nu există, adăugați-l în listă
-            diagnozeSelectate.push(diagnostic);
-    
-            // Creare container pentru textul diagnosticului selectat și butonul X
-            const divDiagnozaSelectata = document.createElement("div");
-            divDiagnozaSelectata.className = "diagnoza-selectata";
-    
-            // Butonul X
-            const butonSterge = document.createElement("span");
-            butonSterge.className = "buton-sterge";
-            butonSterge.textContent = "X";
-            butonSterge.addEventListener("click", function() {
-                stergeDiagnostic(diagnostic, divDiagnozaSelectata);
-            });
-    
-            // Textul diagnosticului
-            const spanDiagnoza = document.createElement("span");
-            spanDiagnoza.textContent = diagnostic;
-            spanDiagnoza.className = "diagnoza-text";
-    
-            // Adăugare buton și text în container
-            divDiagnozaSelectata.appendChild(butonSterge);
-            divDiagnozaSelectata.appendChild(spanDiagnoza);
-    
-            diagnosticeSelectate.appendChild(divDiagnozaSelectata);
-    
-            // Afisare coduri pentru toate diagnozele selectate
-            afiseazaCoduriDiagnostic();
+        // Verificați dacă diagnosticul a fost deja selectat
+        if (diagnozeSelectate.includes(diagnostic)) {
+            return;
         }
-    
+
+        diagnozeSelectate.push(diagnostic);
+
+        // Afisare diagnoze selectate cu butoane de ștergere
+        const divDiagnozaSelectata = document.createElement("div");
+        divDiagnozaSelectata.className = "diagnoza-selectata";
+
+        const spanDiagnoza = document.createElement("span");
+        spanDiagnoza.textContent = diagnostic;
+        divDiagnozaSelectata.appendChild(spanDiagnoza);
+
+        const butonSterge = document.createElement("span");
+        butonSterge.className = "buton-sterge";
+        butonSterge.textContent = " X ";
+        butonSterge.addEventListener("click", function() {
+            stergeDiagnostic(diagnostic, divDiagnozaSelectata);
+        });
+        divDiagnozaSelectata.appendChild(butonSterge);
+
+        diagnosticeSelectate.appendChild(divDiagnozaSelectata);
+
+        // Afisare coduri pentru toate diagnozele selectate
+        afiseazaCoduriDiagnostic();
+        
         // Ascundeți lista după selectare
         diagnosticOptionsList.style.display = "none";
-    
+
         // Ștergeți textul din câmpul de introducere
         diagnosticInput.value = "";
     }
@@ -176,7 +166,7 @@
         if (index !== -1) {
             diagnozeSelectate.splice(index, 1);
 
-            // Elimină containerul cu diagnoza selectată și butonul de ștergere corespunzător
+            // Elimină div-ul cu diagnoza selectată și butonul de ștergere corespunzător
             diagnosticeSelectate.removeChild(divDiagnozaSelectata);
 
             // Afișați codurile actualizate pentru toate diagnozele rămase
@@ -185,18 +175,34 @@
     }
 
     function afiseazaCoduriDiagnostic() {
-        // Afiseaza codurile pentru toate diagnozele selectate
-        coduriDiagnosticDiv.innerHTML = ""; // Golim div-ul pentru a afișa codurile
+        // Inițializați array-uri separate pentru codurile în cele trei câmpuri
+        const coduriDG1 = [];
+        const coduriDG2 = [];
+        const coduriDG3 = [];
 
-        for (const diagnostic of diagnozeSelectate) {
+        for (let i = 0; i < Math.min(3, diagnozeSelectate.length); i++) {
+            const diagnostic = diagnozeSelectate[i];
             const codDiagnostic = diagnoze[diagnostic];
             const coduriSeparate = codDiagnostic.split(/\s*,\s*|\s*\/\s*/);
-            for (const cod of coduriSeparate) {
-                const div = document.createElement("div");
-                div.textContent = cod.trim();
-                coduriDiagnosticDiv.appendChild(div);
+
+            // Împărțiți codurile în cele trei array-uri în funcție de poziție
+            switch (i) {
+                case 0:
+                    coduriDG1.push(...coduriSeparate);
+                    break;
+                case 1:
+                    coduriDG2.push(...coduriSeparate);
+                    break;
+                case 2:
+                    coduriDG3.push(...coduriSeparate);
+                    break;
             }
         }
+
+        // Afișați codurile în câmpurile dg1, dg2 și dg3
+        document.getElementById("dg1").textContent = coduriDG1.join(", ");
+        document.getElementById("dg2").textContent = coduriDG2.join(", ");
+        document.getElementById("dg3").textContent = coduriDG3.join(", ");
     }
 </script>
 
