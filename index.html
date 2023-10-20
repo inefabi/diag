@@ -130,17 +130,13 @@
         if (diagnozeSelectate.includes(diagnostic)) {
             return;
         }
-
+    
         diagnozeSelectate.push(diagnostic);
-
+    
         // Afisare diagnoze selectate cu butoane de ștergere
         const divDiagnozaSelectata = document.createElement("div");
         divDiagnozaSelectata.className = "diagnoza-selectata";
-
-        const spanDiagnoza = document.createElement("span");
-        spanDiagnoza.textContent = diagnostic;
-        divDiagnozaSelectata.appendChild(spanDiagnoza);
-
+    
         const butonSterge = document.createElement("span");
         butonSterge.className = "buton-sterge";
         butonSterge.textContent = " X ";
@@ -148,18 +144,23 @@
             stergeDiagnostic(diagnostic, divDiagnozaSelectata);
         });
         divDiagnozaSelectata.appendChild(butonSterge);
-
+    
+        const spanDiagnoza = document.createElement("span");
+        spanDiagnoza.textContent = diagnostic;
+        divDiagnozaSelectata.appendChild(spanDiagnoza);
+    
         diagnosticeSelectate.appendChild(divDiagnozaSelectata);
-
+    
         // Afisare coduri pentru toate diagnozele selectate
         afiseazaCoduriDiagnostic();
         
         // Ascundeți lista după selectare
         diagnosticOptionsList.style.display = "none";
-
+    
         // Ștergeți textul din câmpul de introducere
         diagnosticInput.value = "";
     }
+
 
     function stergeDiagnostic(diagnostic, divDiagnozaSelectata) {
         const index = diagnozeSelectate.indexOf(diagnostic);
