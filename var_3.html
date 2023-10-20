@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Formular cu Listă de Diagnostice Flotantă</title>
+    <style>
+        /* Stiluri pentru lista flotantă */
+        .diagnostic-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            position: absolute;
+            z-index: 1;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .diagnostic-list li {
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        .diagnostic-list li:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Stiluri pentru elementele cu diagnoze selectate */
+        .diagnoza-selectata {
+            margin: 5px;
+            position: relative;
+        }
+
+        .buton-sterge {
+            cursor: pointer;
+            color: red;
+            margin-left: 5px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        /* Stiluri pentru mesajul de încărcare */
+        .incarcare {
+            text-align: center;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<form>
+    <label for="filtrare-diagnostic">Filtrare diagnostic:</label>
+    <input type="text" id="filtrare-diagnostic" oninput="afiseazaListaDiagnostic()">
+</form>
+
+<div style="position: relative;">
+    <label for="diagnostic">Selectați diagnosticul:</label>
+    <input type="text" id="diagnostic" onclick="afiseazaListaDiagnostic()" readonly>
+    <ul id="diagnostic-options" class="diagnostic-list"></ul>
+</div>
+
+<div>
+    <label for="diagnostice-selectate">Diagnostice selectate:</label>
+    <div id="diagnostice-selectate"></div>
+</div>
+
+<div>
+    <label for="coduri-diagnostic">Coduri diagnostic:</label>
+    <div id="coduri-diagnostic"></div>
+</div>
+
+<div id="incarcare" class="incarcare">Se încarcă diagnozele...</div>
+
+<script>
+    const diagnosticInput = document.getElementById("diagnostic");
+    const diagnosticOptionsList = document.getElementById("diagnostic-options");
+    const coduriDiagnosticDiv = document.getElementById("coduri-diagnostic");
+    const diagnosticeSelectate = document.getElementById("diagnostice-selectate");
+    const incarcareDiv = document.getElementById("incarcare");
+
+    let diagnoze = {}; // Inițializăm obiectul pentru diagnoze
+
+    // Încarcăm diagnozele din fișierul JSON
+    async function incarcaDiagnoze() {
+        try {
+            const response = await fetch('diagnoses.json');
+            const data = await response.json();
+            diagnoze = data;
+            incarcareDiv.style.display = "none"; // Ascundem mesajul de încărcare
+        } catch (error) {
+            console.error('Eroare la încărcarea diagnozelor:', error);
+        }
+    }
+
+    incarcaDiagnoze(); // Apelăm funcția de încărcare
+
+    const diagnozeSelectate = [];
+
+    function afiseazaListaDiagnostic() {
+        const inputText = document.getElementById("filtrare-diagnostic").value.toLowerCase();
+        diagnosticOptionsList.innerHTML = "";
+
+        for (const diagnostic in diagnoze) {
+            if (diagnostic.toLowerCase().includes(inputText)) {
+                const li = document.createElement("li");
+                li.textContent = diagnostic;
+                li.addEventListener("click", function() {
+                    selecteazaDiagnostic(diagnostic);
+                });
+                diagnosticOptionsList.appendChild(li);
+            }
+        }
+
+        // Afișați sau ascundeți lista în funcție de conținut
+        if (diagnosticOptionsList.children.length > 0) {
+            diagnosticOptionsList.style.display = "block";
+        } else {
+            diagnosticOptionsList.style.display = "none";
+        }
+    }
+
+    function selecteazaDiagnostic(diagnostic) {
+        diagnozeSelectate.push(diagnostic);
+
+        // Afisare diagnoze selectate cu butoane de ștergere
+        const divDiagnozaSelectata = document.createElement("div");
+        divDiagnozaSelectata.className = "diagnoza-selectata";
+
+        const spanDiagnoza = document.createElement("span");
+        spanDiagnoza.textContent = diagnostic;
+        divDiagnozaSelectata.appendChild(spanDiagnoza);
+
+        const butonSterge = document.createElement("span");
+        butonSterge.className = "buton-sterge";
+        butonSterge.textContent = " - ";
+        butonSterge.addEventListener("click", function() {
+            stergeDiagnostic(diagnostic, divDiagnozaSelectata);
+        });
+        divDiagnozaSelectata.appendChild(butonSterge);
+
+        diagnosticeSelectate.appendChild(divDiagnozaSelectata);
+
+        // Afisare coduri pentru toate diagnozele selectate
+        afiseazaCoduriDiagnostic();
+        
+        // Ascundeți lista după selectare
+        diagnosticOptionsList.style.display = "none";
+
+        // Ștergeți textul din câmpul de introducere
+        diagnosticInput.value = "";
+    }
+
+    function stergeDiagnostic(diagnostic, divDiagnozaSelectata) {
+        const index = diagnozeSelectate.indexOf(diagnostic);
+        if (index !== -1) {
+            diagnozeSelectate.splice(index, 1);
+
+            // Elimină div-ul cu diagnoza selectată și butonul de ștergere corespunzător
+            diagnosticeSelectate.removeChild(divDiagnozaSelectata);
+
+            // Afișați codurile actualizate pentru toate diagnozele rămase
+            afiseazaCoduriDiagnostic();
+        }
+    }
+
+    function afiseazaCoduriDiagnostic() {
+        // Afiseaza codurile pentru toate diagnozele selectate
+        coduriDiagnosticDiv.innerHTML = ""; // Golim div-ul pentru a afișa codurile
+
+        for (const diagnostic of diagnozeSelectate) {
+            const codDiagnostic = diagnoze[diagnostic];
+            const coduriSeparate = codDiagnostic.split(/\s*,\s*|\s*\/\s*/);
+            for (const cod of coduriSeparate) {
+                const div = document.createElement("div");
+                div.textContent = cod.trim();
+                coduriDiagnosticDiv.appendChild(div);
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
